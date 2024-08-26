@@ -7,7 +7,7 @@ interface ButtonProp {
 
 const PrimaryButton: React.FC<ButtonProp> = ({ title, onClick }) => {
   return (
-    <button className="w-full bg-[#DC2626] text-white font-semibold rounded-[10px] px-4 py-3 hover:bg-[#ee3e3e]">
+    <button onClick={onClick} className="w-full bg-[#DC2626] text-white font-semibold rounded-[10px] px-4 py-3 hover:bg-[#ee3e3e]">
       {title}
     </button>
   );
