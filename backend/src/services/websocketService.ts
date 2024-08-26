@@ -82,7 +82,7 @@ const startWebSocketService = async (): Promise<void> => {
   setupWebhook();
 
   // refreshing cache every 1 minute
-  setInterval(refreshAlertCache, 1 * 60 * 1000);
+  setInterval(refreshAlertCache, 0.5 * 60 * 1000);
 };
 
 export default startWebSocketService;

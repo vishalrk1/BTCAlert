@@ -14,16 +14,21 @@ export interface IAlert extends Document {
   createdAt: Date;
 }
 
-const AlertSchema: Schema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  price: { type: Number, required: true },
-  email: { type: String, required: true },
-  status: {
-    type: String,
-    enum: Object.values(AlertStatus),
-    default: AlertStatus.ACTIVE,
+const AlertSchema: Schema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    price: { type: Number, required: true },
+    email: { type: String, required: true },
+    status: {
+      type: String,
+      enum: Object.values(AlertStatus),
+      default: AlertStatus.ACTIVE,
+    },
+    createdAt: { type: Date, default: Date.now },
   },
-  createdAt: { type: Date, default: Date.now },
-});
+  {
+    timestamps: true,
+  }
+);
 
 export default mongoose.model<IAlert>("Alert", AlertSchema);

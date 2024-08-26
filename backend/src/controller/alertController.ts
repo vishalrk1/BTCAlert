@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 export const getAlerts = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user!.id;
   try {
-    const alerts = await Alert.find({ user: userId });
+    const alerts = await Alert.find({ user: userId }).sort({ updatedAt: -1 });
     res
       .status(200)
       .json({ message: "Successfully fetched all alerts", data: alerts });

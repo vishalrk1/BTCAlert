@@ -11,7 +11,7 @@ const UserCard: React.FC<UserCardProp> = ({ isLoggedIn }) => {
   return (
     <div
       className={twMerge(
-        "flex flex-col p-4 space-y-2 bg-[#3a3939] rounded-[12px] w-full text-center border border-zinc-800",
+        "flex flex-col gap-2 p-4 pt-6 space-y-2 bg-[#3a3939] rounded-[12px] w-full text-center border border-zinc-800",
         !isLoggedIn
           ? "justify-center items-center"
           : "justify-center items-start"
