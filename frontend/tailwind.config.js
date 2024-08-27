@@ -24,6 +24,8 @@ export default {
           canceled: "#ff4545",
           triggered: "#3498db",
         },
+        primary: "#DC2626",
+        primaryLight: "#ee3e3e",
       },
     },
   },

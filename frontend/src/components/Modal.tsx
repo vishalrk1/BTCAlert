@@ -54,7 +54,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
             {children}
           </div>
           {/* Footer */}
-          <div className="flex items-center justify-end p-6 border-t border-solid border-gray-300">
+          {/* <div className="flex items-center justify-end p-6 border-t border-solid border-gray-300">
             <button
               className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1"
               type="button"
@@ -62,7 +62,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
             >
               Close
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
