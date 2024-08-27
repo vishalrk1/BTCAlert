@@ -18,37 +18,36 @@ const CreateAlertModal: React.FC<CreateAlertModalProps> = ({
   const latestPrice = useRef<string | null>(null);
   const [alertPrice, setAlertPrice] = useState<string | null>("");
 
-  //   useEffect(() => {
-  //     ws.current = new WebSocket(
-  //       "wss://stream.binance.com:9443/ws/btcusdt@trade"
-  //     );
-  //     ws.current.onmessage = (event: MessageEvent) => {
-  //       const data: TradeData = JSON.parse(event.data);
-  //       latestPrice.current = parseFloat(data.p).toFixed(2);
-  //     };
+  useEffect(() => {
+    ws.current = new WebSocket(
+      "wss://stream.binance.com:9443/ws/btcusdt@trade"
+    );
+    ws.current.onmessage = (event: MessageEvent) => {
+      const data: TradeData = JSON.parse(event.data);
+      latestPrice.current = parseFloat(data.p).toFixed(2);
+    };
 
-  //     ws.current.onerror = (event: Event) => {
-  //       toast.error("Connection Failed cant update the current bitcoin value");
-  //     };
+    ws.current.onerror = () => {
+      toast.error("Connection Failed cant update the current bitcoin value");
+    };
 
-  //     return () => {
-  //       if (ws.current) {
-  //         ws.current.close();
-  //       }
-  //     };
-  //   }, []);
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
 
-  //   useEffect(() => {
-  //     const intervalId = setInterval(() => {
-  //       if (latestPrice.current !== price) {
-  //         setPrice(latestPrice.current);
-  //       }
-  //     }, 1000);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (latestPrice.current !== price) {
+        setPrice(latestPrice.current);
+      }
+    }, 1000);
 
-  //     return () => clearInterval(intervalId);
-  //   }, [price]);
+    return () => clearInterval(intervalId);
+  }, [price]);
 
-  console.log(alertPrice);
 
   return (
     <Modal title="Create New Alert 🔔" isOpen={isOpen} onClose={onClose}>

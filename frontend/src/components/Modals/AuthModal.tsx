@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Modal from "../Modal";
 import { useForm } from "react-hook-form";
-import { User } from "../../utils/Types";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrimaryButton from "../Buttons/PrimaryButton";
+import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,11 +22,11 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>;
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const { login, registerUser, error } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
   const {
     handleSubmit,
     register,
-    getValues,
     formState: { errors },
   } = useForm<Schema>({
     defaultValues: {
@@ -36,11 +37,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = () => {
-    console.log(getValues());
-  };
+  const onSubmit = async (data: Schema) => {
+    try {
+      if (isLogin) {
+        await login(data.email, data.password);
+      } else {
+        await registerUser(data.email, data.password);
+      }
 
-  console.log(errors);
+      if (error) {
+        toast.error(error);
+      } else {
+        toast.success(
+          isLogin ? "Logged in successfully!" : "Registered successfully!"
+        );
+        onClose();
+      }
+    } catch (err) {
+      console.error("Authentication error:", err);
+      toast.error("Something went wrong. Please try again. 😓");
+      onClose();
+    }
+  };
 
   return (
     <Modal title="Get Started to set Alerts" isOpen={isOpen} onClose={onClose}>

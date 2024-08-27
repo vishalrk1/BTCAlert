@@ -10,7 +10,7 @@ export interface Alert {
   user: string;
   price: number;
   email: string;
-  status: string;
+  status: "active" | "triggered" | "canceled";
   createdAt: string;
   updatedAt: string;
   __v?: number;

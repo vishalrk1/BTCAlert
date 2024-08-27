@@ -1,17 +1,22 @@
 import { useState } from "react";
 import CreateAlertModal from "../components/Modals/CreateAlertModal";
 import PrimaryButton from "../components/Buttons/PrimaryButton";
-import { alertData } from "../utils/data";
-import RecentAlert from "../components/Alerts/RecentAlert";
 import UserCard from "../components/Cards/UserCard";
 import AlertsSectionHeader from "../components/AlertsSectionHeader";
-import PingStatus from "../components/pingStatus";
-import { AlertColors, AlertTextColors } from "../utils/AlertColors";
-import { twMerge } from "tailwind-merge";
-import { formatDate } from "../utils/dateFormater";
+import { useAuth } from "../hooks/useAuth";
+import AllAlertList from "../components/AllAlertList";
+import RecentAlert from "../components/Alerts/RecentAlert";
+import { demoAlertData } from "../utils/data";
+import { useAlerts } from "../hooks/useAlerts";
 
 const Homepage = () => {
   const [openAlertModal, setOpenAlertModal] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { alerts } = useAlerts();
+
+  const displayData = isAuthenticated
+    ? alerts?.slice(0, 4)
+    : demoAlertData?.slice(0, 2);
 
   return (
     <main className="flex gap-2 h-screen">
@@ -28,48 +33,21 @@ const Homepage = () => {
             setOpenAlertModal(true);
           }}
         />
-        <div className="w-full h-max flex flex-col justify-between">
+        <div className="w-full h-full flex flex-col justify-between">
           <div className="overflow-auto flex flex-col items-start justify-start gap-4 mt-4">
             <h1 className="text-xl text-[#978e8e] font-semibold">
               Recently Updated
             </h1>
-            {alertData.slice(0, 4).map((alert, index) => {
+            {displayData?.map((alert, index) => {
               return <RecentAlert alert={alert} index={index} />;
             })}
           </div>
-          <UserCard isLoggedIn={false} />
+          <UserCard isAuthenticated={isAuthenticated} />
         </div>
       </section>
       <section className="w-full p-6 space-y-8">
         <AlertsSectionHeader />
-        <div className="flex flex-wrap gap-4">
-          {alertData.map((alert, index) => {
-            return (
-              <div
-                key={index}
-                className="flex flex-col bg-[#3a3939] min-w-max w-max h-max rounded-lg p-4 gap-1"
-              >
-                <div className="w-full flex flex-row justify-between gap-4">
-                  <div className="flex gap-2 items-center justify-center">
-                    <PingStatus bgColor={AlertColors[alert.status]} />
-                    <span
-                      className={twMerge(
-                        "text-sm",
-                        AlertTextColors[alert.status]
-                      )}
-                    >
-                      {alert.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-200">
-                    {formatDate(alert.updatedAt)}
-                  </p>
-                </div>
-                <h1 className="text-xl font-semibold">{alert.price} USD</h1>
-              </div>
-            );
-          })}
-        </div>
+        <AllAlertList />
       </section>
     </main>
   );

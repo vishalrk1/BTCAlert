@@ -5,7 +5,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  registerUser: (email: string, password: string) => Promise<void>;
   logout: () => void;
   error: string | null;
 }
@@ -36,7 +36,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("token", data?.token);
-        localStorage.setItem("user", data?.user);
+        localStorage.setItem("user", JSON.stringify(data?.user));
         setUser(data.user as User);
         setIsAuthenticated(true);
         setError(null);
@@ -58,15 +58,18 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     }
   };
 
-  const register = async (email: string, password: string) => {
+  const registerUser = async (email: string, password: string) => {
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("token", data?.token);
@@ -92,7 +95,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, register, logout, error }}
+      value={{ user, isAuthenticated, login, registerUser, logout, error }}
     >
       {children}
     </AuthContext.Provider>
