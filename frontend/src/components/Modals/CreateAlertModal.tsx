@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Modal from "../Modal";
 import { TradeData } from "../../utils/Types";
 import PrimaryButton from "../Buttons/PrimaryButton";
-import toast from "react-hot-toast";
 
 interface CreateAlertModalProps {
   isOpen: boolean;
