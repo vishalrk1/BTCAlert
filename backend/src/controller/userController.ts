@@ -6,6 +6,7 @@ import * as authService from "../services/authService";
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    console.log("Register")
 
     if (!email || !password) {
       res
@@ -33,8 +34,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
-
+    console.log("Login")
     if (!email || !password) {
       res.status(400).json({ message: "Please provide email & password" });
     }

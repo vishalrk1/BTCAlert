@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <ToastProvider />
         <AuthContextProvider>
-          <AlertContextProvider>
+          <AlertContextProvider refetchInterval={10000}>
             <App />
           </AlertContextProvider>
         </AuthContextProvider>

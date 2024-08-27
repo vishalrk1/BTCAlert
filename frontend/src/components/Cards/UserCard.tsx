@@ -44,7 +44,7 @@ const UserCard: React.FC<UserCardProp> = ({ isAuthenticated }) => {
             </p>
             <PrimaryButton
               className="text-sm"
-              title="Register"
+              title="Register / Login"
               onClick={() => {
                 setIsOpen(true);
               }}

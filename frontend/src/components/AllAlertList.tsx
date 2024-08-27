@@ -18,6 +18,9 @@ const AllAlertList = () => {
       {displayData?.map((alert, index) => {
         return (
           <div
+            data-aos="fade-up"
+            data-aos-delay={50*index}
+            data-aos-once={false}
             key={index}
             className="flex flex-col bg-[#3a3939] min-w-max w-max h-max rounded-lg p-4 gap-1"
           >

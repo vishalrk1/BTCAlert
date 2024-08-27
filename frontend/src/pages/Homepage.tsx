@@ -8,6 +8,7 @@ import AllAlertList from "../components/AllAlertList";
 import RecentAlert from "../components/Alerts/RecentAlert";
 import { demoAlertData } from "../utils/data";
 import { useAlerts } from "../hooks/useAlerts";
+import toast from "react-hot-toast";
 
 const Homepage = () => {
   const [openAlertModal, setOpenAlertModal] = useState(false);
@@ -28,13 +29,17 @@ const Homepage = () => {
       />
       <section className="flex flex-col gap-2 p-6 w-1/3">
         <PrimaryButton
-          title="Create Alert"
+          title="Create Alert 🔔"
           onClick={() => {
-            setOpenAlertModal(true);
+            if (isAuthenticated) {
+              setOpenAlertModal(true);
+            } else {
+              toast("Login To continue", { icon: "⚠️" });
+            }
           }}
         />
         <div className="w-full h-full flex flex-col justify-between">
-          <div className="overflow-auto flex flex-col items-start justify-start gap-4 mt-4">
+          <div className="flex flex-col items-start justify-start gap-4 mt-4">
             <h1 className="text-xl text-[#978e8e] font-semibold">
               Recently Updated
             </h1>

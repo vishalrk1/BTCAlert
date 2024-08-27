@@ -27,10 +27,6 @@ const CreateAlertModal: React.FC<CreateAlertModalProps> = ({
       latestPrice.current = parseFloat(data.p).toFixed(2);
     };
 
-    ws.current.onerror = () => {
-      toast.error("Connection Failed cant update the current bitcoin value");
-    };
-
     return () => {
       if (ws.current) {
         ws.current.close();
