@@ -1,6 +1,24 @@
 import WebSocket from "ws";
 import NodeCache from "node-cache";
 import Alert, { AlertStatus, IAlert } from "../models/Alert";
+import Redis from "ioredis";
+import { set } from "mongoose";
+
+const ALERT_CACHE_KEY = "active_alerts";
+const EMAIL_QUEUE_KEY = "email_queue";
+
+const redis = new Redis({
+  maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
+});
+
+redis.on("connect", () => {
+  console.info("Redis connected sucessfully!");
+});
+
+redis.on("error", () => {
+  console.error("Error in loading redis");
+});
 
 const alertCache = new NodeCache({
   stdTTL: 600, // 10 minutes
@@ -13,19 +31,28 @@ const alertCache = new NodeCache({
 const refreshAlertCache = async (): Promise<void> => {
   try {
     const alerts = await Alert.find({ status: AlertStatus.ACTIVE });
+    const activeAlertIds = new Set(alerts.map((alert) => alert._id.toString()));
 
-    const alertObjects: { [key: string]: IAlert } = {};
-    alerts.forEach((alert) => {
-      alertObjects[alert._id.toString()] = alert.toObject();
-    });
+    const pipeline = redis.pipeline();
 
-    alertCache.flushAll();
+    // Remove alerts that are no longer active
+    const cachAlertIds = await redis.hkeys(ALERT_CACHE_KEY);
+    for (const alerId of cachAlertIds) {
+      if (activeAlertIds.has(alerId)) {
+        pipeline.hdel(ALERT_CACHE_KEY, alerId);
+      }
+    }
 
-    // Set each alert individually and log the result
-    Object.entries(alertObjects).forEach(([key, value]) => {
-      const setResult = alertCache.set(key, value);
-    });
+    // Update or add active alerts
+    for (const alert of alerts) {
+      pipeline.hset(
+        ALERT_CACHE_KEY,
+        alert._id.toString(),
+        JSON.stringify(alert)
+      );
+    }
 
+    await pipeline.exec();
     console.log("Alert Cache Refreshed", alertCache.keys().length);
   } catch (error) {
     console.error("Failed to refresh cache:", error);
@@ -34,27 +61,44 @@ const refreshAlertCache = async (): Promise<void> => {
 
 const handelWebSocketMessage = async (data: WebSocket.Data): Promise<void> => {
   const price = parseFloat(JSON.parse(data.toString()).p);
-  // console.log(`Current BTC price: $${price.toFixed(2)}`);
+  const cacheAlerts = await redis.hgetall(ALERT_CACHE_KEY);
 
-  const cachedKeys = alertCache.keys();
-  // console.log('Number of cached keys:', cachedKeys.length);
+  const triggeredAlerts: IAlert[] = Object.entries(cacheAlerts)
+    .map(([id, alertString]) => ({
+      _id: id,
+      ...JSON.parse(alertString as string),
+    }))
+    .filter(
+      (alert: IAlert) =>
+        alert.price >= price - 0.5 && alert.price <= price + 0.5
+    );
 
-  const cachedAlerts = alertCache.mget(cachedKeys) as { [key: string]: IAlert };
-  // console.log('Number of cached alerts:', Object.keys(cachedAlerts).length);
-
-  const triggeredAlerts = Object.values(cachedAlerts).filter((alert) => {
-    return alert.price >= price - 0.5 && alert.price <= price + 0.5;
-  });
-
+  // if triggred alerts are there update alert & add alert id to email queue
   for (const alert of triggeredAlerts) {
     console.log(
       `Alert triggered for ${alert.email} & ${
         alert.price
       }: Bitcoin has reached $${price.toFixed(2)}`
     );
-    alert.status = AlertStatus.TRIGGERED;
-    await Alert.findByIdAndUpdate(alert._id, { status: AlertStatus.TRIGGERED });
-    alertCache.del(alert._id.toString());
+    try {
+      await Alert.findByIdAndUpdate(alert._id, {
+        status: AlertStatus.TRIGGERED,
+      });
+      await redis.hdel(ALERT_CACHE_KEY, alert._id.toString());
+
+      // adding alert Id to queue to send email notification
+      await redis.zadd(
+        EMAIL_QUEUE_KEY,
+        Date.now(),
+        JSON.stringify({
+          email: alert.email,
+          subject: "Bitcoin Price Alert",
+          body: `Bitcoin has reached $${price.toFixed(2)}`,
+        })
+      );
+    } catch (error) {
+      console.error(`Failed to process alert ${alert._id}:`, error);
+    }
   }
 };
 
