@@ -1,12 +1,14 @@
-import Redis from "ioredis";
-import nodemailer from "nodemailer";
-
-const redis = new Redis({
-  maxRetriesPerRequest: null,
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-});
+import NodeCache from "node-cache";
 
 const EMAIL_QUEUE_KEY = "email_queue";
+
+const cache = new NodeCache({
+  stdTTL: 600, // 10 minutes
+  checkperiod: 60, // Check for expired keys every 60 seconds
+  useClones: false, // Don't clone objects on get/set
+  deleteOnExpire: true, // Delete expired items
+  maxKeys: -1, // No limit on number of keys
+});
 
 interface EmailJob {
   email: string;
@@ -14,37 +16,32 @@ interface EmailJob {
   body: string;
 }
 
-const transporter = nodemailer.createTransport({});
+export const addToEmailQueue = (job: EmailJob): void => {
+  const queue = cache.get<EmailJob[]>(EMAIL_QUEUE_KEY) || [];
+  queue.push(job);
+  cache.set(EMAIL_QUEUE_KEY, queue);
+};
 
 const processEmailQueue = async (): Promise<void> => {
-  try {
-    // Get the oldest job from the queue
-    const result = await redis.zpopmin(EMAIL_QUEUE_KEY);
+  const queue = cache.get<EmailJob[]>(EMAIL_QUEUE_KEY) || [];
+  if (queue.length > 0) {
+    const job = queue.shift();
+    cache.set(EMAIL_QUEUE_KEY, queue);
 
-    if (result.length > 0) {
-      const [jobJson] = result;
-      const job: EmailJob = JSON.parse(jobJson);
-
+    if (job) {
       try {
-        await transporter.sendMail({
-          from: "your-email@example.com",
-          to: job.email,
-          subject: job.subject,
-          text: job.body,
-        });
-        console.log(`Email sent to ${job.email}`);
+        console.log(`Sending email to ${job.email}: ${job.subject}`);
       } catch (error) {
         console.error("Failed to send email:", error);
-        await redis.zadd(EMAIL_QUEUE_KEY, Date.now() + 60000, jobJson);
+        addToEmailQueue(job);
       }
     }
-  } catch (error) {
-    console.error("Error processing email queue:", error);
   }
-  // to process each email after a short delay
+
   setTimeout(processEmailQueue, 1000);
 };
 
+// Start email processing
 const startEmailService = (): void => {
   processEmailQueue();
   console.log("Email service started");

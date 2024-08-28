@@ -27,7 +27,7 @@ const Homepage = () => {
           setOpenAlertModal(false);
         }}
       />
-      <section className="flex flex-col gap-2 p-6 w-1/3">
+      <section className="flex flex-col gap-2 p-6 w-1/4">
         <PrimaryButton
           title="Create Alert 🔔"
           onClick={() => {

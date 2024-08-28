@@ -6,10 +6,11 @@ import { AlertColors, AlertTextColors } from "../utils/AlertColors";
 
 import { demoAlertData } from "../utils/data";
 import { useAlerts } from "../hooks/useAlerts";
+import PrimaryButton from "./Buttons/PrimaryButton";
 
 const AllAlertList = () => {
   const { isAuthenticated } = useAuth();
-  const { alerts } = useAlerts();
+  const { alerts, cancelAlert } = useAlerts();
 
   const displayData = isAuthenticated ? alerts : demoAlertData;
 
@@ -24,9 +25,14 @@ const AllAlertList = () => {
                 data-aos-delay={50 * index}
                 data-aos-once={false}
                 key={index}
-                className="flex flex-col bg-[#3a3939] min-w-max w-max h-max rounded-lg p-4 gap-1"
+                className="flex flex-col bg-[#3a3939] min-w-max w-max h-max rounded-lg p-4 gap-2"
               >
-                <div className="w-full flex flex-row justify-between gap-4">
+                <div
+                  className={twMerge(
+                    "w-full flex flex-row justify-between",
+                    alert.status === "active" ? "gap-12" : "gap-5"
+                  )}
+                >
                   <div className="flex gap-2 items-center justify-center">
                     <PingStatus bgColor={AlertColors[alert.status]} />
                     <span
@@ -42,7 +48,18 @@ const AllAlertList = () => {
                     {formatDate(alert.updatedAt)}
                   </p>
                 </div>
-                <h1 className="text-xl font-semibold">{alert.price} USD</h1>
+                <div className="flex flex-row justify-between items-center gap-3">
+                  <h1 className="text-xl font-semibold">{alert.price} USD</h1>
+                  {alert.status === "active" && (
+                    <PrimaryButton
+                      title="Cancel"
+                      onClick={() => {
+                        cancelAlert(alert._id);
+                      }}
+                      className="w-max text-xs py-1 bg-[#884141]"
+                    />
+                  )}
+                </div>
               </div>
             );
           })}

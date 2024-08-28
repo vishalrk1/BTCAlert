@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Modal from "../Modal";
 import { TradeData } from "../../utils/Types";
 import PrimaryButton from "../Buttons/PrimaryButton";
+import { useAlerts } from "../../hooks/useAlerts";
+import toast from "react-hot-toast";
 
 interface CreateAlertModalProps {
   isOpen: boolean;
@@ -12,7 +14,8 @@ const CreateAlertModal: React.FC<CreateAlertModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [price, setPrice] = useState<string | null>("63668.11");
+  const { addAlert } = useAlerts();
+  const [price, setPrice] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const latestPrice = useRef<string | null>(null);
   const [alertPrice, setAlertPrice] = useState<string | null>("");
@@ -42,7 +45,6 @@ const CreateAlertModal: React.FC<CreateAlertModalProps> = ({
 
     return () => clearInterval(intervalId);
   }, [price]);
-
 
   return (
     <Modal title="Create New Alert 🔔" isOpen={isOpen} onClose={onClose}>
@@ -75,7 +77,15 @@ const CreateAlertModal: React.FC<CreateAlertModalProps> = ({
           <PrimaryButton
             type="submit"
             title="Create Alert"
-            onClick={() => {}}
+            disabled={alertPrice === ""}
+            onClick={() => {
+              if (alertPrice) {
+                addAlert(alertPrice);
+                onClose()
+              } else {
+                toast.error("Field cant be empty!F");
+              }
+            }}
             className="w-max bg-alert-active hover:bg-[#5bd752]"
           />
         </div>
