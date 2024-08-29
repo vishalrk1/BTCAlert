@@ -9,11 +9,15 @@ import RecentAlert from "../components/Alerts/RecentAlert";
 import { demoAlertData } from "../utils/data";
 import { useAlerts } from "../hooks/useAlerts";
 import toast from "react-hot-toast";
+import { TriangleAlert } from "lucide-react";
+import useBackendStatus from "../hooks/useBackendStatus";
+import BackendStatusAlert from "../components/BackendStatusAlert";
 
 const Homepage = () => {
   const [openAlertModal, setOpenAlertModal] = useState(false);
   const { isAuthenticated } = useAuth();
   const { alerts } = useAlerts();
+  const { isActive: backendStatus } = useBackendStatus();
 
   const displayData = isAuthenticated
     ? alerts?.slice(0, 4)
@@ -52,6 +56,7 @@ const Homepage = () => {
       </section>
       <section className="w-full p-6 space-y-8">
         <AlertsSectionHeader />
+        {!backendStatus && <BackendStatusAlert />}
         <AllAlertList />
       </section>
     </main>

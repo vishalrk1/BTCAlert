@@ -26,6 +26,10 @@ export default {
         },
         primary: "#DC2626",
         primaryLight: "#ee3e3e",
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
       },
     },
   },
