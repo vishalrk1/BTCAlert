@@ -2,11 +2,12 @@ import User from "../models/User";
 import { Request, Response } from "express";
 
 import * as authService from "../services/authService";
+import { generateToken } from "../utils/jwtUtils";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    console.log("Register")
+    console.log("Register");
 
     if (!email || !password) {
       res
@@ -20,9 +21,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = await authService.registerUser(req.body);
+    const token = generateToken(user);
     res
       .status(201)
-      .json({ message: "User registered successfully", userId: user._id });
+      .json({ message: "User registered successfully", token, user: user });
   } catch (error) {
     res.status(500).json({
       message: "Registration failed",
@@ -34,7 +36,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    console.log("Login")
+    console.log("Login");
     if (!email || !password) {
       res.status(400).json({ message: "Please provide email & password" });
     }

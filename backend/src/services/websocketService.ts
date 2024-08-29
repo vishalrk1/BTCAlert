@@ -76,11 +76,11 @@ const handleWebSocketMessage = async (data: WebSocket.Data): Promise<void> => {
       });
 
       // Add email to queue
-      // addToEmailQueue({
-      //   email: alert.email,
-      //   subject: "Bitcoin Price Alert",
-      //   body: `Bitcoin has reached $${price.toFixed(2)}`,
-      // });
+      addToEmailQueue({
+        email: alert.email,
+        subject: "Bitcoin Price Alert",
+        body: `Bitcoin has reached $${price.toFixed(2)}`,
+      });
     } catch (error) {
       console.error(`Failed to process alert ${alertId}:`, error);
       cachedAlerts[alertId] = alert;

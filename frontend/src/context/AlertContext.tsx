@@ -79,7 +79,7 @@ export const AlertContextProvider: React.FC<AlertContextProviderType> = ({
     },
     onSuccess: () => {
       refetchAlert();
-      // refetch();
+      refetch();
       toast.success("Alert created sucessfully 😎");
     },
     onError: (data) => {
@@ -103,7 +103,7 @@ export const AlertContextProvider: React.FC<AlertContextProviderType> = ({
       return data?.data;
     },
     onSuccess: () => {
-      // refetchAlert();
+      refetchAlert();
       refetch();
       toast.success("Alert canceled sucessfully 🫡");
     },
