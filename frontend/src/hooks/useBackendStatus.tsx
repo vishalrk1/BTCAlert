@@ -9,8 +9,9 @@ const useBackendStatus = () => {
   useEffect(() => {
     const getStatus = async () => {
       try {
-        const res = await fetch(`/api/status`);
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/status`);
         const data = await res.json();
+        console.log(data.data.status)
         setIsActive(data.data.status);
         if (!data.data.status) {
           toast.error(data.message || "Backend service is down");
