@@ -21,4 +21,8 @@ The Bitcoin Alert System is a comprehensive web application designed to provide 
 
 # Screenshots
 <img width="1280" alt="image" src="https://github.com/user-attachments/assets/c81ad380-56e6-44b9-86ce-45c28e3159bb">
+<!-- <img width="1173" alt="image" src="https://github.com/user-attachments/assets/51126258-03ad-4216-a5d4-84c8d0114da5"> -->
+<!-- <img width="953" alt="image" src="https://github.com/user-attachments/assets/46ed998b-d553-4e4d-b9c4-833ec96afc42"> -->
+<!-- <img width="1280" alt="image" src="https://github.com/user-attachments/assets/1c0f40da-f67d-4d6b-b67a-e3429543de25"> -->
+
 
