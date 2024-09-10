@@ -18,3 +18,7 @@ The Bitcoin Alert System is a comprehensive web application designed to provide 
 - **Real-Time Communication**: WebSocket (Binance API and custom implementation)
 - **Database**: MongoDB
 - **Caching**: Node.js in-memory cache
+
+# Screenshots
+<img width="1280" alt="image" src="https://github.com/user-attachments/assets/c81ad380-56e6-44b9-86ce-45c28e3159bb">
+
