@@ -5,8 +5,7 @@ import cookieParser from "cookie-parser";
 
 import alertRoutes from "./Routes/alertRoutes";
 import authRoutes from "./Routes/autRoutes";
-import startWebSocketService from "./services/websocketService";
-import startEmailService from "./services/emailService";
+import serviceRoutes, { startServices } from "./Routes/serviceRoutes";
 
 const app = express();
 
@@ -21,18 +20,10 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/alert", alertRoutes);
-
-app.get("/api/status", (req: Request, res: Response) => {
-  const isServiceUp = process.env.KEEP_SERVICE_UP === "true";
-  res.status(isServiceUp ? 200 : 404).json({
-    message: isServiceUp ? "Service is up and running" : "Service is down",
-    data: { status: isServiceUp },
-  });
-});
+app.use("/api/service", serviceRoutes);
 
 if (process.env.KEEP_SERVICE_UP === "true") {
-  startWebSocketService();
-  startEmailService();
+  startServices();
 }
 
 export default app;

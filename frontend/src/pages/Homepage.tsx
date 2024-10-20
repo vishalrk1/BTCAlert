@@ -9,7 +9,6 @@ import RecentAlert from "../components/Alerts/RecentAlert";
 import { demoAlertData } from "../utils/data";
 import { useAlerts } from "../hooks/useAlerts";
 import toast from "react-hot-toast";
-import { TriangleAlert } from "lucide-react";
 import useBackendStatus from "../hooks/useBackendStatus";
 import BackendStatusAlert from "../components/BackendStatusAlert";
 

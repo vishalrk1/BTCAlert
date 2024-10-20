@@ -4,7 +4,6 @@ import Alert, { AlertStatus, IAlert } from "../models/Alert";
 import { addToEmailQueue } from "./emailService";
 
 const ALERT_CACHE_KEY = "active_alerts";
-const EMAIL_QUEUE_KEY = "email_queue";
 
 const cache = new NodeCache({
   stdTTL: 600, // 10 minutes
@@ -14,7 +13,13 @@ const cache = new NodeCache({
   maxKeys: -1, // No limit on number of keys
 });
 
+let isRunning = false;
+let ws: WebSocket | null = null;
+let refreshInterval: NodeJS.Timeout | null = null;
+
 const refreshAlertCache = async (): Promise<void> => {
+  if (!isRunning) return;
+
   try {
     const alerts = await Alert.find({ status: AlertStatus.ACTIVE });
     const activeAlertIds = new Set(alerts.map((alert) => alert._id.toString()));
@@ -41,6 +46,8 @@ const refreshAlertCache = async (): Promise<void> => {
 };
 
 const handleWebSocketMessage = async (data: WebSocket.Data): Promise<void> => {
+  if (!isRunning) return;
+
   const price = parseFloat(JSON.parse(data.toString()).p);
   const cachedAlerts =
     cache.get<{ [key: string]: IAlert }>(ALERT_CACHE_KEY) || {};
@@ -90,7 +97,7 @@ const handleWebSocketMessage = async (data: WebSocket.Data): Promise<void> => {
 };
 
 const setupWebSocket = (): void => {
-  const ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
+  ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
 
   ws.on("open", () => {
     console.log("Connected to Binance WebSocket");
@@ -102,18 +109,41 @@ const setupWebSocket = (): void => {
   });
 
   ws.on("close", () => {
-    console.log("WebSocket connection closed. Attempting to reconnect...");
-    setTimeout(setupWebSocket, 5000);
+    if (isRunning) {
+      console.log("WebSocket connection closed. Attempting to reconnect...");
+      setTimeout(setupWebSocket, 5000);
+    }
   });
 };
 
 // Function to setup WebSocket
-const startWebSocketService = async (): Promise<void> => {
+export const startWebSocketService = async (): Promise<void> => {
+  if (isRunning) {
+    console.log("WebSocket service is already running");
+    return;
+  }
+
+  isRunning = true;
   await refreshAlertCache();
   setupWebSocket();
 
   // Refreshing cache every 30 seconds
-  setInterval(refreshAlertCache, 30 * 1000);
+  refreshInterval = setInterval(refreshAlertCache, 30 * 1000);
+
+  console.log(">>> Websocket service started")
+};
+
+export const stopWebSocketService = (): void => {
+  isRunning = false;
+  if (ws) {
+    ws.close();
+    ws = null;
+  }
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+  console.log("WebSocket service stopped");
 };
 
 export default startWebSocketService;
